@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 3
+names: ['meta', 'przeszkoda', 'robot']
+
+roboflow:
+  workspace: mobilerobot-dy11e
+  project: rob-qnzqz
+  version: 3
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/mobilerobot-dy11e/rob-qnzqz/dataset/3
