@@ -1,15 +1,12 @@
 import time
 import math
-from visualization import init_view, step, PROMIEN
+from visualization import init_view, step, PROMIEN, ROBOT_HEIGHT, ROBOT_WIDTH
 
-# Parametry robota
+# Parametry robota - UZUPEŁNIJ
 ROBOT_WIDTH = 10
 ROBOT_HEIGHT = 6
 ROBOT_RADIUS = max(ROBOT_WIDTH, ROBOT_HEIGHT) / 2
-
 MAX_LINE_FOLLOW = 15
-
-# Parametry kolizji
 SAFE_DISTANCE = 2  # dodatkowa przestrzeń bezpieczeństwa
 
 # Funkcja pomocnicza: dystans euklidesowy

@@ -2,12 +2,9 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import time
 
-# Globalna zmienna określająca promień punktów i wymiary robota
+# UZUPEŁNIJ
 PROMIEN = 3
 PROMIEN_META = 2
-ROBOT_WIDTH = 10
-ROBOT_HEIGHT = 6
-
 # Wymiary obszaru roboczego
 x = 200
 y = 100
