@@ -5,6 +5,10 @@ import time
 # UZUPEŁNIJ
 PROMIEN = 3
 PROMIEN_META = 2
+
+ROBOT_WIDTH = 10
+ROBOT_HEIGHT = 6
+
 # Wymiary obszaru roboczego
 x = 200
 y = 100

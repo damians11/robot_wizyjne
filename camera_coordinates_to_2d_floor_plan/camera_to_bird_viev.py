@@ -103,7 +103,7 @@ def warp_image(image, pts_src):
 def main():
     mode = "manual"  # <- zmień na "manual", jeśli chcesz klikać ręcznie
 
-    image_path = 'dataset/valid/images/IMG_1254_JPG.rf.3e5d069b50a45684bfe88db34b2c5173.jpg'
+    image_path = 'image.png'  # <- podaj ścieżkę do obrazu
     image = cv2.imread(image_path)
     if image is None:
         print(f"Błąd: nie można otworzyć pliku '{image_path}'")
