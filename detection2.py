@@ -46,7 +46,7 @@ while True:
                     cv2.circle(frame, (cx, cy), 4, (0, 0, 255), -1)
                     cv2.putText(frame, label, (cx + 10, cy), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 255), 2)
 
-    # 🖨️ Wypisuj co 2 sekundy
+    # Wypisuj co 2 sekundy
     current_time = time.time()
     if current_time - last_print_time >= 2.0:
         print("🕒 Obiekty na scenie:")
