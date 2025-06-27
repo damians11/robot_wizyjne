@@ -10,6 +10,8 @@ ROBOT_HEIGHT = 6
 # Wymiary obszaru roboczego
 x = 200
 y = 100
+MAX_LINE_FOLLOW = 15 # max kroków do obchodzenia przeszkód
+SAFE_DISTANCE = 2  # dodatkowa przestrzeń bezpieczeństwa
 #__________________________________________________________
 
 # Inicjalne pozycje

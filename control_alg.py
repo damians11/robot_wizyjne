@@ -5,8 +5,7 @@ from visualization import init_view, step, PROMIEN, ROBOT_HEIGHT, ROBOT_WIDTH, y
 # Parametry robota - UZUPEŁNIJ
 # ROBOT_WIDTH = 10
 # ROBOT_HEIGHT = 6
-MAX_LINE_FOLLOW = 15 # max kroków do obchodzenia przeszkód
-SAFE_DISTANCE = 2  # dodatkowa przestrzeń bezpieczeństwa
+
 #____________________________________________________________________________________
 ROBOT_RADIUS = max(ROBOT_WIDTH, ROBOT_HEIGHT) / 2
 
