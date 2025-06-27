@@ -1,6 +1,6 @@
 import time
 import math
-from visualization import init_view, step, PROMIEN, ROBOT_HEIGHT, ROBOT_WIDTH, y
+from visualization import init_view, step, PROMIEN, ROBOT_HEIGHT, ROBOT_WIDTH, MAX_LINE_FOLLOW, SAFE_DISTANCE
 
 # Parametry robota - UZUPEŁNIJ
 # ROBOT_WIDTH = 10
