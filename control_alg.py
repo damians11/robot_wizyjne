@@ -1,13 +1,15 @@
 import time
 import math
-from visualization import init_view, step, PROMIEN, ROBOT_HEIGHT, ROBOT_WIDTH
+from visualization import init_view, step, PROMIEN, ROBOT_HEIGHT, ROBOT_WIDTH, y
 
 # Parametry robota - UZUPEŁNIJ
-ROBOT_WIDTH = 10
-ROBOT_HEIGHT = 6
-ROBOT_RADIUS = max(ROBOT_WIDTH, ROBOT_HEIGHT) / 2
-MAX_LINE_FOLLOW = 15
+# ROBOT_WIDTH = 10
+# ROBOT_HEIGHT = 6
+MAX_LINE_FOLLOW = 15 # max kroków do obchodzenia przeszkód
 SAFE_DISTANCE = 2  # dodatkowa przestrzeń bezpieczeństwa
+#____________________________________________________________________________________
+ROBOT_RADIUS = max(ROBOT_WIDTH, ROBOT_HEIGHT) / 2
+
 
 # Funkcja pomocnicza: dystans euklidesowy
 def distance(a, b):
@@ -31,6 +33,10 @@ def move_robot(robot_pos, meta_pos, obstacles, step_size=1.0):
         return robot_pos  # już na miejscu
 
 def move_robot(robot_pos, meta_pos, obstacles, step_size=1.0):
+    if distance(robot_pos, meta_pos) < ROBOT_RADIUS:
+        print("Dotarto do mety!")
+        return "stop"
+    
     dx = meta_pos[0] - robot_pos[0]
     dy = meta_pos[1] - robot_pos[1]
     current_dist = math.hypot(dx, dy)
@@ -64,7 +70,7 @@ def move_robot(robot_pos, meta_pos, obstacles, step_size=1.0):
 
      # --- LINE FOLLOW (kierunek do mety) ---
     # --- TRYB: LINE FOLLOW ---
-    print(move_robot.wall_follow_mode)
+    # print(move_robot.wall_follow_mode)
     destination=["backward", "right"]
     if dx>=0:
         destination[0] = "forward"
@@ -116,8 +122,8 @@ def update_pos(robot_pos, dx, dy):
 if __name__ == '__main__':
     robot_pos, meta_pos, obstacles = init_view()
 
-    while(1):  # maksymalnie 500 kroków
-        robot_cmd = move_robot(robot_pos, meta_pos, obstacles)
+    while(1):  
+        robot_cmd = move_robot(robot_pos, meta_pos, obstacles) #1
         dx=0
         dy=0
         if robot_cmd=="forward":
@@ -129,7 +135,7 @@ if __name__ == '__main__':
         elif robot_cmd=="backward":
             dx=-1
         robot_pos = update_pos(robot_pos, dx, dy)
-        step(robot_pos, meta_pos, obstacles)
+        step(robot_pos, meta_pos, obstacles) #2
 
         if distance(robot_pos, meta_pos) < ROBOT_RADIUS:
             print("Dotarto do mety!")
