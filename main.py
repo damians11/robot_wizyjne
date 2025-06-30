@@ -143,6 +143,8 @@ def main():
             break
 
     cap.release()
+    mqtt_cli.loop_stop()
+    mqtt_cli.disconnect()
     cv2.destroyAllWindows()
 
 
