@@ -4,7 +4,7 @@ import numpy as np
 # === Konfiguracja ===
 MAP_WIDTH = 1000
 MAP_HEIGHT = 1000
-CAMERA_SOURCE = "http://192.168.0.194:8080/video"  # Możesz też użyć 0 dla lokalnej kamery
+CAMERA_SOURCE = 0#"http://192.168.0.194:8080/video"  # Możesz też użyć 0 dla lokalnej kamery
 
 labels = ["top-left", "top-right", "bottom-right", "bottom-left"]
 instructions = [

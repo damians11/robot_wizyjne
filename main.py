@@ -7,12 +7,12 @@ from visualization import init_view, step
 import paho.mqtt.client as mqtt  
 
 # === KONFIGURACJA ===
-url = "http://192.168.0.194:8080/video"
+url = 0#"http://192.168.0.194:8080/video"
 model = YOLO("runs/robot-segmentation/weights/best.pt")
 MAP_SIZE = 1000
 
 # === MQTT ===
-BROKER_ADDR = "192.168.0.105"
+BROKER_ADDR = "192.168.97.30"
 BROKER_PORT = 1883
 MQTT_TOPIC  = "robot/command"
 
@@ -62,9 +62,9 @@ def main():
 
     init_view()
     robot_pos = [0,0]
-    meta_pos = [100,100]
-    obstacles = [[1,1],[2,2]]
-    
+    meta_pos = []
+    obstacles = [[0,0],[0,0],[0,0]]
+    idx = 0
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -109,29 +109,33 @@ def main():
                             cv2.circle(transformed_view, (mx, my), 5, (0, 0, 255), -1)
                             cv2.putText(transformed_view, label, (mx + 10, my), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
 
-        idx = 0
+        # idx = 0
         # Wypisuj co 2 sekundy
         current_time = time.time()
-        if current_time - last_print_time >= 2.0:
+        if current_time - last_print_time >= 0.5:
             print("Obiekty na scenie:")
             for label, positions in object_positions.items():
                 for (x, y) in positions:
                     print(f"  {label}: ({x}, {y}) → {calculate_new_coordinate(x, y, H)}")
-                    if label == "Meta":
+                    if label == "meta" and meta_pos == []:
                         meta_pos = [x,y]
-                    elif label == "Robot":
+                    elif label == "robot":
                         robot_pos = [x,y]
-                    elif label == "Przeszkoda":
+                    elif label == "przeszkoda" and idx < 3:
                         obstacles[idx] = [x,y]
                         idx = idx+1
             last_print_time = current_time
 
         # Sterowanie
-        robot_cmd = move_robot(robot_pos, meta_pos, obstacles)
-        mqtt_cli.publish(MQTT_TOPIC, robot_cmd)
+        if robot_pos != [] and meta_pos != [] and obstacles!= []:
+            robot_cmd = move_robot(robot_pos, meta_pos, obstacles)
+            mqtt_cli.publish(MQTT_TOPIC, robot_cmd)
 
-        # Wizualizacja
-        step(robot_pos, meta_pos, obstacles)
+            step(robot_pos, meta_pos, obstacles)
+        # else:
+            # mqtt_cli.publish(MQTT_TOPIC, "stop")
+
+        robot_pos = []
         
         # Wyświetl obraz kamery, mapę i przekształcony widok
         map_view = draw_on_map(MAP_SIZE, mapped_positions)
@@ -139,7 +143,21 @@ def main():
         cv2.imshow("Top-Down Map", map_view)
         cv2.imshow("Widok 2D z obiektami", transformed_view)
 
+        # Parametry zapisu
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # lub 'XVID' dla .avi
+
+        # Ustal rozmiar w zależności od rozmiaru klatki
+        frame_height, frame_width = frame.shape[:2]
+        map_height, map_width = map_view.shape[:2]
+        trans_height, trans_width = transformed_view.shape[:2]
+
+        # Inicjalizacja VideoWriter
+        out_frame = cv2.VideoWriter('frame_view.mp4', fourcc, 20.0, (frame_width, frame_height))
+        out_map = cv2.VideoWriter('map_view.mp4', fourcc, 20.0, (map_width, map_height))
+        out_trans = cv2.VideoWriter('transformed_view.mp4', fourcc, 20.0, (trans_width, trans_height))
+
         if cv2.waitKey(1) & 0xFF in [ord('q'), 27]:
+            mqtt_cli.publish(MQTT_TOPIC, "stop")
             break
 
     cap.release()

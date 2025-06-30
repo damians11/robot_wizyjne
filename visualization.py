@@ -1,23 +1,24 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import time
+import cv2
 
 # UZUPEŁNIJ
-PROMIEN = 3
-PROMIEN_META = 2
-ROBOT_WIDTH = 10
-ROBOT_HEIGHT = 6
+PROMIEN =10#3
+PROMIEN_META = 10#2
+ROBOT_WIDTH = 40#10
+ROBOT_HEIGHT = 20#6
 # Wymiary obszaru roboczego
-x = 200
-y = 100
+x = 1000#200
+y = 1000#100
 MAX_LINE_FOLLOW = 15 # max kroków do obchodzenia przeszkód
-SAFE_DISTANCE = 2  # dodatkowa przestrzeń bezpieczeństwa
+SAFE_DISTANCE = 5  # dodatkowa przestrzeń bezpieczeństwa
 #__________________________________________________________
 
 # Inicjalne pozycje
 robot = [20, 30]
 meta = [80, 70]
-przeszkody = [[50, 52], [30, 80], [60, 20], [75, 40], [65, 50]]
+przeszkody = [[50, 52]]
 
 # Tryb interaktywny
 plt.ion()
@@ -73,11 +74,27 @@ def update_view(new_robot, new_meta, new_przeszkody):
 
     # Odświeżenie widoku
     plt.draw()
+    # Render jednej klatki, aby uzyskać wymiary
+    plt.savefig("temp_plot.png")
+    plot_frame = cv2.imread("temp_plot.png")
+    plot_height, plot_width = plot_frame.shape[:2]
+
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # lub 'XVID'
+    out_plot = cv2.VideoWriter('plot_view.mp4', fourcc, 20.0, (plot_width, plot_height))
+    
     plt.pause(0.001)
+
 
 
 def init_view():
     return robot, meta, przeszkody
 
 def step(robot_pos, meta_pos, przeszkody_pos):
-    update_view(robot_pos, meta_pos, przeszkody_pos)
+    pos_tym = [robot_pos[0], 1000-robot_pos[1]]
+    meta_tym = [meta_pos[0], 1000-meta_pos[1]]
+    przeszkody_tym = [[],[],[]]
+    idx = 0
+    for el in przeszkody_pos:
+         przeszkody_tym[idx] = [przeszkody_pos[idx][0], 1000-przeszkody_pos[idx][1]]
+         idx = idx+1
+    update_view(pos_tym, meta_tym, przeszkody_tym)
