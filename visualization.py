@@ -1,7 +1,10 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import numpy as np
 import time
 import cv2
+from io import BytesIO
+from PIL import Image
 
 # UZUPEŁNIJ
 PROMIEN =10#3
@@ -23,11 +26,14 @@ przeszkody = [[50, 52]]
 # Tryb interaktywny
 plt.ion()
 fig, ax = plt.subplots()
+# fig, ax = plt.subplots(figsize=(6.4, 4.8), dpi=100)  # 6.4 * 100 = 640 px, 4.8 * 100 = 480 px
 ax.set_xlim(0, x)
 ax.set_ylim(0, y)
 ax.set_aspect('equal')
 ax.set_facecolor('white')
 ax.axis('off')
+# print("Canvas size:", fig.canvas.get_width_height())
+
 
 # Czerwona obwódka
 obwodka = patches.Rectangle((0, 0), x, y, linewidth=2, edgecolor='red', facecolor='none')
@@ -50,11 +56,36 @@ obstacle_circles = [plt.Circle(p, PROMIEN, color='black') for p in przeszkody]
 for circle in obstacle_circles:
     ax.add_patch(circle)
 
-plt.draw()
+# plt.draw()
 plt.pause(0.001)
+
+def fig_to_frame(fig):
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    width = int(renderer.width)
+    height = int(renderer.height)
+    buf = np.frombuffer(fig.canvas.buffer_rgba(), dtype=np.uint8)
+    img = buf.reshape((height, width, 4))  # RGBA
+    img = cv2.cvtColor(img, cv2.COLOR_RGBA2BGR)
+    return img
+
+# 🎥 Konwersja pierwszej klatki → rozmiar
+frame = fig_to_frame(fig)
+height, width, _ = frame.shape
+# print("Frame shape:", frame.shape)
+
+
+# 🎬 Przygotowanie VideoWriter
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+out = cv2.VideoWriter('plot_view.mp4', fourcc, 20.0, (width, height))
+
+# fourcc = cv2.VideoWriter_fourcc(*'XVID')  # lub 'avc1' jeśli masz H.264
+# out = cv2.VideoWriter('plot_view.avi', fourcc, 20.0, (width, height))
+
 
 # 🔄 Funkcja do aktualizacji pozycji
 def update_view(new_robot, new_meta, new_przeszkody):
+    global obstacle_circles
     # Aktualizacja pozycji prostokąta robota
     robot_rect.set_xy((new_robot[0] - ROBOT_WIDTH / 2, new_robot[1] - ROBOT_HEIGHT / 2))
 
@@ -72,16 +103,12 @@ def update_view(new_robot, new_meta, new_przeszkody):
         ax.add_patch(circle)
         obstacle_circles.append(circle)
 
-    # Odświeżenie widoku
-    plt.draw()
-    # Render jednej klatki, aby uzyskać wymiary
-    plt.savefig("temp_plot.png")
-    plot_frame = cv2.imread("temp_plot.png")
-    plot_height, plot_width = plot_frame.shape[:2]
+    # Dodaj klatkę do pliku wideo
+    frame = fig_to_frame(fig)
+    out.write(frame)
 
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # lub 'XVID'
-    out_plot = cv2.VideoWriter('plot_view.mp4', fourcc, 20.0, (plot_width, plot_height))
-    
+    # Pokaz na żywo (opcjonalnie)
+    # plt.draw()
     plt.pause(0.001)
 
 
@@ -98,3 +125,9 @@ def step(robot_pos, meta_pos, przeszkody_pos):
          przeszkody_tym[idx] = [przeszkody_pos[idx][0], 1000-przeszkody_pos[idx][1]]
          idx = idx+1
     update_view(pos_tym, meta_tym, przeszkody_tym)
+
+def exit():
+    # Zwolnienie zasobów
+    out.release()
+    plt.ioff()
+    plt.close()

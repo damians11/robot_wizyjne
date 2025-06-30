@@ -1,6 +1,7 @@
 import time
 import math
-from visualization import init_view, step, PROMIEN, ROBOT_HEIGHT, ROBOT_WIDTH, MAX_LINE_FOLLOW, SAFE_DISTANCE
+import cv2
+from visualization import init_view, step, PROMIEN, ROBOT_HEIGHT, ROBOT_WIDTH, MAX_LINE_FOLLOW, SAFE_DISTANCE, exit
 
 # Parametry robota - UZUPEŁNIJ
 # ROBOT_WIDTH = 10
@@ -134,10 +135,13 @@ if __name__ == '__main__':
         elif robot_cmd=="backward":
             dx=-1
         robot_pos = update_pos(robot_pos, dx, dy)
-        step(robot_pos, meta_pos, obstacles) #2
+        # step(robot_pos, meta_pos, obstacles) #2
 
         if distance(robot_pos, meta_pos) < ROBOT_RADIUS:
             print("Dotarto do mety!")
-            break
-
-        time.sleep(0.05)
+        
+        for n in range(100000):
+            print("oneaaaaaaaaaaaaaaaaaaaaaaaa")
+        # time.sleep(5)
+        exit()
+        break
