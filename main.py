@@ -4,11 +4,24 @@ import numpy as np
 import time
 from control_alg import move_robot
 from visualization import init_view, step
+import paho.mqtt.client as mqtt  
 
 # === KONFIGURACJA ===
 url = "http://192.168.0.194:8080/video"
 model = YOLO("runs/robot-segmentation/weights/best.pt")
 MAP_SIZE = 1000
+
+# === MQTT ===
+BROKER_ADDR = "192.168.0.105"
+BROKER_PORT = 1883
+MQTT_TOPIC  = "robot/command"
+
+def init_mqtt() -> mqtt.Client:
+    cli = mqtt.Client()
+    cli.connect(BROKER_ADDR, BROKER_PORT, keepalive=60)
+    cli.loop_start()
+    print(f"[MQTT] Połączono z brokerem {BROKER_ADDR}:{BROKER_PORT}")
+    return cli
 
 # === Wczytaj macierz homografii ===
 H = np.load("homography_matrix.npy")
@@ -17,6 +30,7 @@ print("Wczytano macierz homografii:\n", H)
 # === Uruchom kamerę ===
 cap = cv2.VideoCapture(url)
 
+mqtt_cli = init_mqtt()
 last_print_time = time.time()
 
 def calculate_new_coordinate(x, y, H):
@@ -105,17 +119,17 @@ def main():
                     print(f"  {label}: ({x}, {y}) → {calculate_new_coordinate(x, y, H)}")
                     if label == "Meta":
                         meta_pos = [x,y]
-                    else if label == "Robot":
+                    elif label == "Robot":
                         robot_pos = [x,y]
-                    else if label == "Przeszkoda":
+                    elif label == "Przeszkoda":
                         obstacles[idx] = [x,y]
                         idx = idx+1
             last_print_time = current_time
 
         # Sterowanie
         robot_cmd = move_robot(robot_pos, meta_pos, obstacles)
-        #/TODO: wysłanie sygnału do robota ("forward", "left", "right", "backward", "stop")
-        # przed odpaleniem trzeba ręcznie wartości zmiennych dopisać w pliku visualization.py (na początku pliku)
+        mqtt_cli.publish(MQTT_TOPIC, robot_cmd)
+
         # Wizualizacja
         step(robot_pos, meta_pos, obstacles)
         
