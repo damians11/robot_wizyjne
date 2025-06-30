@@ -2,6 +2,8 @@ import cv2
 from ultralytics import YOLO
 import numpy as np
 import time
+from control_alg import move_robot
+from visualization import init_view, step
 
 # === KONFIGURACJA ===
 url = "http://192.168.0.194:8080/video"
@@ -44,6 +46,11 @@ def main():
 
     global last_print_time
 
+    init_view()
+    robot_pos = [0,0]
+    meta_pos = [100,100]
+    obstacles = [[1,1],[2,2]]
+    
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -88,6 +95,7 @@ def main():
                             cv2.circle(transformed_view, (mx, my), 5, (0, 0, 255), -1)
                             cv2.putText(transformed_view, label, (mx + 10, my), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
 
+        idx = 0
         # Wypisuj co 2 sekundy
         current_time = time.time()
         if current_time - last_print_time >= 2.0:
@@ -95,8 +103,22 @@ def main():
             for label, positions in object_positions.items():
                 for (x, y) in positions:
                     print(f"  {label}: ({x}, {y}) → {calculate_new_coordinate(x, y, H)}")
+                    if label == "Meta":
+                        meta_pos = [x,y]
+                    else if label == "Robot":
+                        robot_pos = [x,y]
+                    else if label == "Przeszkoda":
+                        obstacles[idx] = [x,y]
+                        idx = idx+1
             last_print_time = current_time
 
+        # Sterowanie
+        robot_cmd = move_robot(robot_pos, meta_pos, obstacles)
+        #/TODO: wysłanie sygnału do robota ("forward", "left", "right", "backward", "stop")
+        # przed odpaleniem trzeba ręcznie wartości zmiennych dopisać w pliku visualization.py (na początku pliku)
+        # Wizualizacja
+        step(robot_pos, meta_pos, obstacles)
+        
         # Wyświetl obraz kamery, mapę i przekształcony widok
         map_view = draw_on_map(MAP_SIZE, mapped_positions)
         cv2.imshow("Wykrywanie w czasie rzeczywistym", frame)
