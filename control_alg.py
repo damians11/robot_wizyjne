@@ -31,22 +31,22 @@ def move_robot(robot_pos, meta_pos, obstacles, step_size=1.0):
 
     if dist < 1e-2:
         return robot_pos  # już na miejscu
-
+loop_hop = 0
 def move_robot(robot_pos, meta_pos, obstacles, step_size=1.0):
-    if distance(robot_pos, meta_pos) < ROBOT_RADIUS + SAFE_DISTANCE + PROMIEN + 30:
+    if distance(robot_pos, meta_pos) < ROBOT_RADIUS + SAFE_DISTANCE + PROMIEN -30:
         print("Dotarto do mety!")
         return "stop"
-    
+    global loop_hop
     dx = meta_pos[0] - robot_pos[0]
     dy = meta_pos[1] - robot_pos[1]
     current_dist = math.hypot(dx, dy)
 
     # Zdefiniuj możliwe kierunki jako wektory
     directions = {
-        "forward": (70, 0),
-        "left": (0, -70),
-        "right": (0, 70),
-        "backward": (-70, 0),
+        "forward": (40, 0),
+        "left": (0, -40),
+        "right": (0, 40),
+        "backward": (-40, 0),
     }
 
     # Inicjalizacja zmiennych stanu
@@ -95,6 +95,22 @@ def move_robot(robot_pos, meta_pos, obstacles, step_size=1.0):
         move_robot.line_follow_steps = 0
 
     print(move_robot.wall_follow_mode)
+    if loop_hop < 10:
+        loop_hop = loop_hop + 1
+        return "left"
+    elif loop_hop < 20:
+        loop_hop = loop_hop + 1
+        return "forward"
+    elif loop_hop < 25:
+        loop_hop = loop_hop + 1
+        return "right"
+    elif loop_hop < 34:
+        loop_hop = loop_hop + 1
+        return "forward"
+    else:
+        # loop_hop = 0
+        # move_robot.wall_follow_mode = False
+        return "stop"
     # --- TRYB: WALL FOLLOW ---
     for name in directions:
         dx_step, dy_step = directions[name]
