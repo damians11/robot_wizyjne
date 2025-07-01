@@ -3,19 +3,17 @@ import matplotlib.patches as patches
 import numpy as np
 import time
 import cv2
-from io import BytesIO
-from PIL import Image
 
 # UZUPEŁNIJ
-PROMIEN =10#3
-PROMIEN_META = 10#2
-ROBOT_WIDTH = 40#10
-ROBOT_HEIGHT = 20#6
+PROMIEN =25#3
+PROMIEN_META = 25#2
+ROBOT_WIDTH = 60#10
+ROBOT_HEIGHT = 40#6
 # Wymiary obszaru roboczego
-x = 1000#200
-y = 1000#100
-MAX_LINE_FOLLOW = 15 # max kroków do obchodzenia przeszkód
-SAFE_DISTANCE = 5  # dodatkowa przestrzeń bezpieczeństwa
+x = 700#200
+y = 700#100
+MAX_LINE_FOLLOW = 200 # max kroków do obchodzenia przeszkód
+SAFE_DISTANCE = 30  # dodatkowa przestrzeń bezpieczeństwa
 #__________________________________________________________
 
 # Inicjalne pozycje
@@ -56,7 +54,7 @@ obstacle_circles = [plt.Circle(p, PROMIEN, color='black') for p in przeszkody]
 for circle in obstacle_circles:
     ax.add_patch(circle)
 
-# plt.draw()
+plt.draw()
 plt.pause(0.001)
 
 def fig_to_frame(fig):
@@ -69,15 +67,15 @@ def fig_to_frame(fig):
     img = cv2.cvtColor(img, cv2.COLOR_RGBA2BGR)
     return img
 
-# 🎥 Konwersja pierwszej klatki → rozmiar
-frame = fig_to_frame(fig)
-height, width, _ = frame.shape
+# # 🎥 Konwersja pierwszej klatki → rozmiar
+# frame = fig_to_frame(fig)
+# height, width, _ = frame.shape
 # print("Frame shape:", frame.shape)
 
 
-# 🎬 Przygotowanie VideoWriter
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-out = cv2.VideoWriter('plot_view.mp4', fourcc, 20.0, (width, height))
+# # 🎬 Przygotowanie VideoWriter
+# fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+# out = cv2.VideoWriter('plot_view.mp4', fourcc, 20.0, (width, height))
 
 # fourcc = cv2.VideoWriter_fourcc(*'XVID')  # lub 'avc1' jeśli masz H.264
 # out = cv2.VideoWriter('plot_view.avi', fourcc, 20.0, (width, height))
@@ -104,11 +102,11 @@ def update_view(new_robot, new_meta, new_przeszkody):
         obstacle_circles.append(circle)
 
     # Dodaj klatkę do pliku wideo
-    frame = fig_to_frame(fig)
-    out.write(frame)
+    # frame = fig_to_frame(fig)
+    # out.write(frame)
 
     # Pokaz na żywo (opcjonalnie)
-    # plt.draw()
+    plt.draw()
     plt.pause(0.001)
 
 
@@ -117,17 +115,17 @@ def init_view():
     return robot, meta, przeszkody
 
 def step(robot_pos, meta_pos, przeszkody_pos):
-    pos_tym = [robot_pos[0], 1000-robot_pos[1]]
-    meta_tym = [meta_pos[0], 1000-meta_pos[1]]
+    pos_tym = [robot_pos[0], x-robot_pos[1]]
+    meta_tym = [meta_pos[0], x-meta_pos[1]]
     przeszkody_tym = [[],[],[]]
     idx = 0
     for el in przeszkody_pos:
-         przeszkody_tym[idx] = [przeszkody_pos[idx][0], 1000-przeszkody_pos[idx][1]]
+         przeszkody_tym[idx] = [przeszkody_pos[idx][0], x-przeszkody_pos[idx][1]]
          idx = idx+1
     update_view(pos_tym, meta_tym, przeszkody_tym)
 
 def exit():
     # Zwolnienie zasobów
-    out.release()
+    # out.release()
     plt.ioff()
     plt.close()
